@@ -3,157 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INTERIOR PRO v11.1 - SITE STATION</title>
+    <title>INTERIOR STATION - TRẠM THỢ XƯỞNG</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: #0F172A; margin: 0; padding: 15px; display: flex; align-items: center; justify-content: center; min-height: 100vh; color: #E2E8F0; }
         .card { background: #1E293B; border-radius: 14px; padding: 24px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid #334155; }
-        .pin-screen { text-align: center; }
-        .pin-title { font-size: 18px; font-weight: bold; color: #10B981; margin-bottom: 20px; }
-        .pin-input { width: 100%; padding: 14px; text-align: center; font-size: 22px; border-radius: 8px; border: 2px solid #334155; background: #0F172A; color: white; letter-spacing: 6px; margin-bottom: 20px; }
-        .btn-unlock { width: 100%; padding: 14px; background: #10B981; color: white; border: none; font-weight: bold; border-radius: 8px; font-size: 15px; cursor: pointer; }
-        .logo-box { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #334155; font-size: 20px; font-weight: bold; color: #10B981; }
-        label { font-size: 11px; font-weight: 600; color: #94A3B8; text-transform: uppercase; display: block; margin: 14px 0 6px 0; letter-spacing: 0.5px; }
-        select, input[type="text"], input[type="number"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0F172A; color: white; font-size: 14px; }
-        .live-preview { background: #162238; border-left: 4px solid #10B981; padding: 12px; margin-top: 12px; border-radius: 4px; font-size: 13px; }
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
-        .btn-action { padding: 14px; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 14px; cursor: pointer; }
-        .btn-in { background: #10B981; } .btn-out { background: #EF4444; }
+        h2 { text-align: center; color: #10B981; margin-bottom: 20px; font-size: 22px; font-weight: bold; }
+        label { font-size: 11px; font-weight: bold; color: #94A3B8; display: block; margin-bottom: 6px; letter-spacing: 0.5px; }
+        select, input { width: 100%; padding: 12px; font-size: 15px; border-radius: 8px; border: 1px solid #334155; background: #0F172A; color: white; margin-bottom: 20px; outline: none; }
+        select:focus, input:focus { border-color: #10B981; }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        button { padding: 14px; color: white; border: none; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-nhap { background: #10B981; }
+        .btn-nhap:hover { background: #059669; }
+        .btn-xuat { background: #EF4444; }
+        .btn-xuat:hover { background: #DC2626; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <div id="man-hinh-pin" class="pin-screen">
-        <div class="pin-title">🔒 ĐĂNG NHẬP TRẠM VẬT TƯ v11.1</div>
-        <input type="password" id="input-pin-tho" class="pin-input" placeholder="••••" maxlength="6">
-        <button class="btn-unlock" onclick="moKhoaTramVatTu()">MỞ KHÓA HỆ THỐNG</button>
-    </div>
+    <h2>✨ INTERIOR STATION</h2>
+    
+    <label>🏢 VẬT TƯ THUỘC DỰ ÁN NÀO?</label>
+    <select id="cb_du_an">
+        <option value="KHO_TONG">Kho tổng xưởng (Không tính vào dự án)</option>
+    </select>
 
-    <div id="app-chinh" style="display: none;">
-        <div class="logo-box">✨ INTERIOR STATION</div>
+    <label>📦 TÊN VẬT TƯ BIẾN ĐỘNG</label>
+    <input type="text" id="ten_vt" placeholder="Ví dụ: Ván MDF 17mm, Bản lề hơi...">
 
-        <label>🏢 VẬT TƯ THUỘC DỰ ÁN NÀO?</label>
-        <select id="select-du-an">
-            <option value="KHO_TONG">Kho tổng xưởng (Không tính vào dự án)</option>
-        </select>
+    <label>🔢 SỐ LƯỢNG BIẾN ĐỘNG THỰC TẾ</label>
+    <input type="text" id="so_luong" placeholder="Nhập số lượng (Ví dụ: 10 hoặc 10 tấm)...">
 
-        <label>📦 MÃ VẬT TƯ BIẾN ĐỘNG</label>
-        <input type="text" id="input-ma-vt" placeholder="Nhập mã vật tư..." oninput="truyVanVatTuGoc()">
-        
-        <div id="khung-xem-truoc" class="live-preview" style="display: none;">
-            <b>Tên vật tư:</b> <span id="lbl-ten">--</span><br>
-            <b>Giá vốn:</b> <span id="lbl-gia" style="color: #F59E0B;">0</span> Đ  |  <b>Tồn kho:</b> <span id="lbl-ton" style="color: #10B981; font-weight: bold;">0</span>
-        </div>
-
-        <label>🔢 SỐ LƯỢNG BIẾN ĐỘNG THỰC TẾ</label>
-        <input type="number" id="input-sl" value="1" min="1">
-
-        <div class="action-grid">
-            <button class="btn-action btn-in" onclick="thucHienGiaoDich('NHẬP KHO')">📥 NHẬP KHO</button>
-            <button class="btn-action btn-out" onclick="thucHienGiaoDich('XUẤT KHO')">📤 XUẤT KHO</button>
-        </div>
+    <div class="btn-group">
+        <button class="btn-nhap" onclick="xuLyGiaoDich('NHẬP KHO')">📥 NHẬP KHO</button>
+        <button class="btn-xuat" onclick="xuLyGiaoDich('XUẤT KHO')">📤 XUẤT KHO</button>
     </div>
 </div>
 
 <script>
-const FIREBASE_URL = "https://github.com/VuDac17/tram-vat-tu.git";
-const WORKER_PIN = "5678";
-let thongTinVatTuHienTai = null;
+    const FIREBASE_URL = "https://vudac17.github.io/tram-vat-tu/";
 
-function moKhoaTramVatTu() {
-    let pin = document.getElementById("input-pin-tho").value;
-    if(pin === WORKER_PIN) {
-        document.getElementById("man-hinh-pin").style.display = "none";
-        document.getElementById("app-chinh").style.display = "block";
-        taiDanhSachCongTrinh();
-    } else {
-        Swal.fire("Sai mã PIN", "Mã PIN công nhân kho không đúng!", "error");
-    }
-}
-
-async function taiDanhSachCongTrinh() {
-    try {
-        let res = await fetch(`${FIREBASE_URL}du_an.json`);
-        let data = await res.json();
-        let select = document.getElementById("select-du-an");
-        if(data) {
-            for(let key in data) {
-                let opt = document.createElement("option");
-                opt.value = key;
-                opt.innerText = data[key].ten_du_an;
-                select.appendChild(opt);
+    // Tự động tải danh sách dự án từ máy chủ về menu lựa chọn trên điện thoại thợ
+    window.onload = function() {
+        fetch(`${FIREBASE_URL}du_an.json`)
+        .then(res => res.json())
+        .then(data => {
+            const cb = document.getElementById('cb_du_an');
+            if(data) {
+                for (let key in data) {
+                    let opt = document.createElement('option');
+                    opt.value = key;
+                    opt.innerText = `${key} - ${data[key].ten_du_an}`;
+                    cb.appendChild(opt);
+                }
             }
-        }
-    } catch(e){}
-}
-
-async function truyVanVatTuGoc() {
-    let ma = document.getElementById("input-ma-vt").value.trim().toUpperCase();
-    if(!ma) { document.getElementById("khung-xem-truoc").style.display = "none"; return; }
-    try {
-        let res = await fetch(`${FIREBASE_URL}kho_vat_tu/${ma}.json`);
-        let data = await res.json();
-        if(data) {
-            thongTinVatTuHienTai = data;
-            document.getElementById("lbl-ten").innerText = data.ten_vt;
-            document.getElementById("lbl-gia").innerText = Number(data.don_gia).toLocaleString('vi-VN');
-            document.getElementById("lbl-ton").innerText = data.so_luong;
-            document.getElementById("khung-xem-truoc").style.display = "block";
-        } else {
-            document.getElementById("khung-xem-truoc").style.display = "none";
-            thongTinVatTuHienTai = null;
-        }
-    } catch(e){}
-}
-
-async function thucHienGiaoDich(loai) {
-    let ma = document.getElementById("input-ma-vt").value.trim().toUpperCase();
-    let sl = parseInt(document.getElementById("input-sl").value);
-    let ma_da = document.getElementById("select-du-an").value;
-    
-    if(!thongTinVatTuHienTai) {
-        Swal.fire("Lỗi mã", "Mã vật tư này chưa được văn phòng định giá gốc!", "warning");
-        return;
-    }
-    if(!sl || sl <= 0) {
-        Swal.fire("Lỗi số lượng", "Vui lòng nhập số lượng hợp lệ!", "warning");
-        return;
-    }
-    
-    let ton_cu = thongTinVatTuHienTai.so_luong || 0;
-    let ton_moi = loai === "NHẬP KHO" ? (ton_cu + sl) : (ton_cu - sl);
-    
-    if(loai === "XUẤT KHO" && ton_cu < sl) {
-        Swal.fire("Không đủ hàng", `Kho chỉ còn tồn thực tế ${ton_cu}!`, "error");
-        return;
-    }
-    
-    let d = new Date();
-    let ngay_ghi = d.toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit', year: 'numeric'});
-    let gio_ghi = d.toLocaleTimeString('vi-VN', {hour12: false});
-    
-    try {
-        await fetch(`${FIREBASE_URL}kho_vat_tu/${ma}/so_luong.json`, { method: 'PUT', body: JSON.stringify(ton_moi) });
-        let id_ls = "LS_" + Date.now();
-        await fetch(`${FIREBASE_URL}nhat_ky_nhap_xuat/${id_ls}.json`, {
-            method: 'PUT',
-            body: JSON.stringify({
-                ma_vt: ma, loai: loai, so_luong: sl, don_gia: thongTinVatTuHienTai.don_gia,
-                ma_du_an: ma_da, ngay: ngay_ghi, gio: gio_ghi
-            })
         });
-        
-        Swal.fire("Thành công", `Đã lưu giao dịch ${loai}!`, "success");
-        document.getElementById("input-ma-vt").value = "";
-        document.getElementById("input-sl").value = "1";
-        document.getElementById("khung-xem-truoc").style.display = "none";
-        thongTinVatTuHienTai = null;
-    } catch(e) {
-        Swal.fire("Lỗi", "Mất kết nối mạng xưởng!", "error");
+    };
+
+    function xuLyGiaoDich(loai) {
+        const ten = document.getElementById('ten_vt').value.trim();
+        const slRaw = document.getElementById('so_luong').value.trim();
+        const duAn = document.getElementById('cb_du_an').value;
+
+        // Bộ lọc số nhanh tại client loại bỏ chữ lặt vặt
+        const sl = parseInt(slRaw.replace(/[^0-9]/g, ''));
+
+        if (!ten || isNaN(sl) || sl <= 0) {
+            Swal.fire('Lỗi nhập liệu', 'Vui lòng điền đúng tên vật tư và số lượng số!', 'warning');
+            return;
+        }
+
+        const ma_vt_hoa = ten.replace(/ /g, "_").toUpperCase();
+        const ngay_ht = new Date().toLocaleDateString('vi-VN');
+        const gio_ht = new Date().toLocaleTimeString('vi-VN');
+
+        fetch(`${FIREBASE_URL}kho_vat_tu/${ma_vt_hoa}.json`)
+        .then(res => res.json())
+        .then(data => {
+            let sl_cu = (data && data.so_luong) ? parseInt(data.so_luong) : 0;
+            let don_gia = (data && data.don_gia) ? parseFloat(data.don_gia) : 0;
+            let sl_moi = (loai === "NHẬP KHO") ? (sl_cu + sl) : (sl_cu - sl);
+
+            if (sl_moi < 0) {
+                Swal.fire('Thất bại', 'Số lượng tồn kho không đủ để xuất!', 'error');
+                return;
+            }
+
+            // Cập nhật kho chung
+            fetch(`${FIREBASE_URL}kho_vat_tu/${ma_vt_hoa}.json`, {
+                method: 'PUT',
+                body: JSON.stringify({ ten_vt: ten, don_gia: don_gia, so_luong: sl_moi })
+            });
+
+            // Ghi nhật ký lịch sử dữ liệu đồng bộ
+            const id_log = "LS_" + Date.now();
+            fetch(`${FIREBASE_URL}nhat_ky_nhap_xuat/${id_log}.json`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    ten_vt: ten, loai: loai, so_luong: sl, don_gia: don_gia,
+                    ma_du_an: duAn, ngay: ngay_ht, gio: gio_ht
+                })
+            }).then(() => {
+                Swal.fire('Thành công', `Đã ghi nhận ${loai} thành công!`, 'success');
+                document.getElementById('ten_vt').value = '';
+                document.getElementById('so_luong').value = '';
+            });
+        });
     }
-}
 </script>
 </body>
 </html>
