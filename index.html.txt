@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTERIOR PRO v11.1 - SITE STATION</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+        body { background: #0F172A; margin: 0; padding: 15px; display: flex; align-items: center; justify-content: center; min-height: 100vh; color: #E2E8F0; }
+        .card { background: #1E293B; border-radius: 14px; padding: 24px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid #334155; }
+        .pin-screen { text-align: center; }
+        .pin-title { font-size: 18px; font-weight: bold; color: #10B981; margin-bottom: 20px; }
+        .pin-input { width: 100%; padding: 14px; text-align: center; font-size: 22px; border-radius: 8px; border: 2px solid #334155; background: #0F172A; color: white; letter-spacing: 6px; margin-bottom: 20px; }
+        .btn-unlock { width: 100%; padding: 14px; background: #10B981; color: white; border: none; font-weight: bold; border-radius: 8px; font-size: 15px; cursor: pointer; }
+        .logo-box { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #334155; font-size: 20px; font-weight: bold; color: #10B981; }
+        label { font-size: 11px; font-weight: 600; color: #94A3B8; text-transform: uppercase; display: block; margin: 14px 0 6px 0; letter-spacing: 0.5px; }
+        select, input[type="text"], input[type="number"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0F172A; color: white; font-size: 14px; }
+        .live-preview { background: #162238; border-left: 4px solid #10B981; padding: 12px; margin-top: 12px; border-radius: 4px; font-size: 13px; }
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+        .btn-action { padding: 14px; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 14px; cursor: pointer; }
+        .btn-in { background: #10B981; } .btn-out { background: #EF4444; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div id="man-hinh-pin" class="pin-screen">
+        <div class="pin-title">🔒 ĐĂNG NHẬP TRẠM VẬT TƯ v11.1</div>
+        <input type="password" id="input-pin-tho" class="pin-input" placeholder="••••" maxlength="6">
+        <button class="btn-unlock" onclick="moKhoaTramVatTu()">MỞ KHÓA HỆ THỐNG</button>
+    </div>
+
+    <div id="app-chinh" style="display: none;">
+        <div class="logo-box">✨ INTERIOR STATION</div>
+
+        <label>🏢 VẬT TƯ THUỘC DỰ ÁN NÀO?</label>
+        <select id="select-du-an">
+            <option value="KHO_TONG">Kho tổng xưởng (Không tính vào dự án)</option>
+        </select>
+
+        <label>📦 MÃ VẬT TƯ BIẾN ĐỘNG</label>
+        <input type="text" id="input-ma-vt" placeholder="Nhập mã vật tư..." oninput="truyVanVatTuGoc()">
+        
+        <div id="khung-xem-truoc" class="live-preview" style="display: none;">
+            <b>Tên vật tư:</b> <span id="lbl-ten">--</span><br>
+            <b>Giá vốn:</b> <span id="lbl-gia" style="color: #F59E0B;">0</span> Đ  |  <b>Tồn kho:</b> <span id="lbl-ton" style="color: #10B981; font-weight: bold;">0</span>
+        </div>
+
+        <label>🔢 SỐ LƯỢNG BIẾN ĐỘNG THỰC TẾ</label>
+        <input type="number" id="input-sl" value="1" min="1">
+
+        <div class="action-grid">
+            <button class="btn-action btn-in" onclick="thucHienGiaoDich('NHẬP KHO')">📥 NHẬP KHO</button>
+            <button class="btn-action btn-out" onclick="thucHienGiaoDich('XUẤT KHO')">📤 XUẤT KHO</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const FIREBASE_URL = "https://khonoithat-38dd7-default-rtdb.firebaseio.com/";
+const WORKER_PIN = "5678";
+let thongTinVatTuHienTai = null;
+
+function moKhoaTramVatTu() {
+    let pin = document.getElementById("input-pin-tho").value;
+    if(pin === WORKER_PIN) {
+        document.getElementById("man-hinh-pin").style.display = "none";
+        document.getElementById("app-chinh").style.display = "block";
+        taiDanhSachCongTrinh();
+    } else {
+        Swal.fire("Sai mã PIN", "Mã PIN công nhân kho không đúng!", "error");
+    }
+}
+
+async function taiDanhSachCongTrinh() {
+    try {
+        let res = await fetch(`${FIREBASE_URL}du_an.json`);
+        let data = await res.json();
+        let select = document.getElementById("select-du-an");
+        if(data) {
+            for(let key in data) {
+                let opt = document.createElement("option");
+                opt.value = key;
+                opt.innerText = data[key].ten_du_an;
+                select.appendChild(opt);
+            }
+        }
+    } catch(e){}
+}
+
+async function truyVanVatTuGoc() {
+    let ma = document.getElementById("input-ma-vt").value.trim().toUpperCase();
+    if(!ma) { document.getElementById("khung-xem-truoc").style.display = "none"; return; }
+    try {
+        let res = await fetch(`${FIREBASE_URL}kho_vat_tu/${ma}.json`);
+        let data = await res.json();
+        if(data) {
+            thongTinVatTuHienTai = data;
+            document.getElementById("lbl-ten").innerText = data.ten_vt;
+            document.getElementById("lbl-gia").innerText = Number(data.don_gia).toLocaleString('vi-VN');
+            document.getElementById("lbl-ton").innerText = data.so_luong;
+            document.getElementById("khung-xem-truoc").style.display = "block";
+        } else {
+            document.getElementById("khung-xem-truoc").style.display = "none";
+            thongTinVatTuHienTai = null;
+        }
+    } catch(e){}
+}
+
+async function thucHienGiaoDich(loai) {
+    let ma = document.getElementById("input-ma-vt").value.trim().toUpperCase();
+    let sl = parseInt(document.getElementById("input-sl").value);
+    let ma_da = document.getElementById("select-du-an").value;
+    
+    if(!thongTinVatTuHienTai) {
+        Swal.fire("Lỗi mã", "Mã vật tư này chưa được văn phòng định giá gốc!", "warning");
+        return;
+    }
+    if(!sl || sl <= 0) {
+        Swal.fire("Lỗi số lượng", "Vui lòng nhập số lượng hợp lệ!", "warning");
+        return;
+    }
+    
+    let ton_cu = thongTinVatTuHienTai.so_luong || 0;
+    let ton_moi = loai === "NHẬP KHO" ? (ton_cu + sl) : (ton_cu - sl);
+    
+    if(loai === "XUẤT KHO" && ton_cu < sl) {
+        Swal.fire("Không đủ hàng", `Kho chỉ còn tồn thực tế ${ton_cu}!`, "error");
+        return;
+    }
+    
+    let d = new Date();
+    let ngay_ghi = d.toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit', year: 'numeric'});
+    let gio_ghi = d.toLocaleTimeString('vi-VN', {hour12: false});
+    
+    try {
+        await fetch(`${FIREBASE_URL}kho_vat_tu/${ma}/so_luong.json`, { method: 'PUT', body: JSON.stringify(ton_moi) });
+        let id_ls = "LS_" + Date.now();
+        await fetch(`${FIREBASE_URL}nhat_ky_nhap_xuat/${id_ls}.json`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                ma_vt: ma, loai: loai, so_luong: sl, don_gia: thongTinVatTuHienTai.don_gia,
+                ma_du_an: ma_da, ngay: ngay_ghi, gio: gio_ghi
+            })
+        });
+        
+        Swal.fire("Thành công", `Đã lưu giao dịch ${loai}!`, "success");
+        document.getElementById("input-ma-vt").value = "";
+        document.getElementById("input-sl").value = "1";
+        document.getElementById("khung-xem-truoc").style.display = "none";
+        thongTinVatTuHienTai = null;
+    } catch(e) {
+        Swal.fire("Lỗi", "Mất kết nối mạng xưởng!", "error");
+    }
+}
+</script>
+</body>
+</html>
