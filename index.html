@@ -2,52 +2,63 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INTERIOR STATION - TRẠM THỢ XƯỞNG</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MOSS STATION - TRẠM THỢ XƯỞNG MÀU XANH RÊU</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: #0F172A; margin: 0; padding: 15px; display: flex; align-items: center; justify-content: center; min-height: 100vh; color: #E2E8F0; }
-        .card { background: #1E293B; border-radius: 14px; padding: 24px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid #334155; }
-        h2 { text-align: center; color: #10B981; margin-bottom: 20px; font-size: 22px; font-weight: bold; }
-        label { font-size: 11px; font-weight: bold; color: #94A3B8; display: block; margin-bottom: 6px; letter-spacing: 0.5px; }
-        select, input { width: 100%; padding: 12px; font-size: 15px; border-radius: 8px; border: 1px solid #334155; background: #0F172A; color: white; margin-bottom: 20px; outline: none; }
-        select:focus, input:focus { border-color: #10B981; }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        button { padding: 14px; color: white; border: none; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-nhap { background: #10B981; }
-        .btn-nhap:hover { background: #059669; }
-        .btn-xuat { background: #EF4444; }
-        .btn-xuat:hover { background: #DC2626; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #141812; margin: 0; padding: 12px; display: flex; align-items: center; justify-content: center; min-height: 100vh; color: #C2CBBF; }
+        .card { background: #1B2118; border-radius: 16px; padding: 26px; width: 100%; max-width: 450px; box-shadow: 0 12px 30px rgba(0,0,0,0.5); border: 1px solid #2D3A29; }
+        h2 { text-align: center; color: #4A5D44; margin-top: 0; margin-bottom: 24px; font-size: 22px; font-weight: bold; letter-spacing: 0.5px; }
+        label { font-size: 11px; font-weight: bold; color: #708269; display: block; margin-bottom: 6px; letter-spacing: 0.8px; }
+        select, input { width: 100%; padding: 14px; font-size: 15px; border-radius: 10px; border: 1px solid #2D3A29; background: #141812; color: #FFFFFF; margin-bottom: 22px; outline: none; transition: 0.2s; }
+        select:focus, input:focus { border-color: #4A5D44; box-shadow: 0 0 5px rgba(74, 93, 68, 0.4); }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        button { padding: 15px; color: #FFFFFF; border: none; font-size: 14px; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-nhap { background: #4A5D44; }
+        .btn-nhap:hover { background: #3B4B36; }
+        .btn-xuat { background: #8C4343; }
+        .btn-xuat:hover { background: #703333; }
+        .status-bar { text-align: center; font-size: 11px; color: #708269; margin-top: 15px; border-top: 1px dashed #2D3A29; padding-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>✨ INTERIOR STATION</h2>
+    <h2>🌿 MOSS INDUSTRIAL STATION</h2>
     
-    <label>🏢 VẬT TƯ THUỘC DỰ ÁN NÀO?</label>
+    <label>🏢 VẬT TƯ THUỘC CÔNG TRÌNH / DỰ ÁN NÀO?</label>
     <select id="cb_du_an">
-        <option value="KHO_TONG">Kho tổng xưởng (Không tính vào dự án)</option>
+        <option value="KHO_TONG">Kho tổng xưởng (Chưa phân vào dự án)</option>
     </select>
 
-    <label>📦 TÊN VẬT TƯ BIẾN ĐỘNG</label>
-    <input type="text" id="ten_vt" placeholder="Ví dụ: Ván MDF 17mm, Bản lề hơi...">
+    <label>📦 LỰA CHỌN VẬT TƯ BIẾN ĐỘNG</label>
+    <select id="cb_vat_tu" onchange="capNhatGiaVatTu()">
+        <option value="">-- Bấm chọn vật tư đang có trong kho --</option>
+    </select>
 
     <label>🔢 SỐ LƯỢNG BIẾN ĐỘNG THỰC TẾ</label>
-    <input type="text" id="so_luong" placeholder="Nhập số lượng (Ví dụ: 10 hoặc 10 tấm)...">
+    <input type="text" id="so_luong" placeholder="Ví dụ gõ: 15 hoặc 15 tấm, 15 cái...">
 
     <div class="btn-group">
-        <button class="btn-nhap" onclick="xuLyGiaoDich('NHẬP KHO')">📥 NHẬP KHO</button>
-        <button class="btn-xuat" onclick="xuLyGiaoDich('XUẤT KHO')">📤 XUẤT KHO</button>
+        <button class="btn-nhap" onclick="xuLyGiaoDichKho('NHẬP KHO')">📥 NHẬP THÊM</button>
+        <button class="btn-xuat" onclick="xuLyGiaoDichKho('XUẤT KHO')">📤 XUẤT XƯỞNG</button>
     </div>
+    
+    <div class="status-bar">Hệ thống kết nối Realtime • Đồng bộ với máy tính quản lý</div>
 </div>
 
 <script>
-    const FIREBASE_URL = "https://vudac17.github.io/tram-vat-tu/";
+    // CHÚ Ý: Đổi liên kết giống hệt liên kết trong file Python máy tính của bạn
+    const FIREBASE_URL = "https://vudac17-tram-vat-tu-default-rtdb.firebaseio.com/";
+    let danhSachVatTuGoc = {};
 
-    // Tự động tải danh sách dự án từ máy chủ về menu lựa chọn trên điện thoại thợ
     window.onload = function() {
+        taiDuLieuTuCloud();
+    };
+
+    function taiDuLieuTuCloud() {
+        // 1. Tải danh sách công trình về máy điện thoại thợ
         fetch(`${FIREBASE_URL}du_an.json`)
         .then(res => res.json())
         .then(data => {
@@ -61,55 +72,75 @@
                 }
             }
         });
-    };
 
-    function xuLyGiaoDich(loai) {
-        const ten = document.getElementById('ten_vt').value.trim();
+        // 2. Tải danh sách vật tư hiện có trong kho gốc để thợ chọn, không cho gõ tay để tránh sai mã
+        fetch(`${FIREBASE_URL}kho_vat_tu.json`)
+        .then(res => res.json())
+        .then(data => {
+            const cbVT = document.getElementById('cb_vat_tu');
+            cbVT.innerHTML = '<option value="">-- Bấm chọn vật tư đang có trong kho --</option>';
+            if(data) {
+                danhSachVatTuGoc = data;
+                for (let key in data) {
+                    let opt = document.createElement('option');
+                    opt.value = key;
+                    opt.innerText = `📦 ${key} (${data[key].ten_vt}) - Tồn: ${data[key].so_luong}`;
+                    cbVT.appendChild(opt);
+                }
+            }
+        });
+    }
+
+    function xuLyGiaoDichKho(loai) {
+        const ma_vt = document.getElementById('cb_vat_tu').value;
         const slRaw = document.getElementById('so_luong').value.trim();
         const duAn = document.getElementById('cb_du_an').value;
 
-        // Bộ lọc số nhanh tại client loại bỏ chữ lặt vặt
+        // Bộ lọc tự động làm sạch chữ lạ trên điện thoại
         const sl = parseInt(slRaw.replace(/[^0-9]/g, ''));
 
-        if (!ten || isNaN(sl) || sl <= 0) {
-            Swal.fire('Lỗi nhập liệu', 'Vui lòng điền đúng tên vật tư và số lượng số!', 'warning');
+        if (!ma_vt) {
+            Swal.fire('Thiếu dữ liệu', 'Vui lòng chọn một loại vật tư nội thất cụ thể!', 'warning');
+            return;
+        }
+        if (isNaN(sl) || sl <= 0) {
+            Swal.fire('Số lượng sai', 'Vui lòng nhập số lượng số thực tế!', 'warning');
             return;
         }
 
-        const ma_vt_hoa = ten.replace(/ /g, "_").toUpperCase();
-        const ngay_ht = new Date().toLocaleDateString('vi-VN');
-        const gio_ht = new Date().toLocaleTimeString('vi-VN');
+        const dataVT = danhSachVatTuGoc[ma_vt];
+        let sl_cu = parseInt(dataVT.so_luong || 0);
+        let don_gia = parseFloat(dataVT.don_gia || 0);
+        let ten_vt = dataVT.ten_vt || ma_vt;
+        
+        let sl_moi = (loai === "NHẬP KHO") ? (sl_cu + sl) : (sl_cu - sl);
 
-        fetch(`${FIREBASE_URL}kho_vat_tu/${ma_vt_hoa}.json`)
-        .then(res => res.json())
-        .then(data => {
-            let sl_cu = (data && data.so_luong) ? parseInt(data.so_luong) : 0;
-            let don_gia = (data && data.don_gia) ? parseFloat(data.don_gia) : 0;
-            let sl_moi = (loai === "NHẬP KHO") ? (sl_cu + sl) : (sl_cu - sl);
+        if (sl_moi < 0) {
+            Swal.fire('Kho không đủ', `Số lượng tồn thực tế (${sl_cu}) không đủ để xuất ${sl}!`, 'error');
+            return;
+        }
 
-            if (sl_moi < 0) {
-                Swal.fire('Thất bại', 'Số lượng tồn kho không đủ để xuất!', 'error');
-                return;
-            }
-
-            // Cập nhật kho chung
-            fetch(`${FIREBASE_URL}kho_vat_tu/${ma_vt_hoa}.json`, {
-                method: 'PUT',
-                body: JSON.stringify({ ten_vt: ten, don_gia: don_gia, so_luong: sl_moi })
-            });
-
-            // Ghi nhật ký lịch sử dữ liệu đồng bộ
+        // Thực hiện cập nhật số lượng tồn kho mới lên Cloud Realtime
+        fetch(`${FIREBASE_URL}kho_vat_tu/${ma_vt}.json`, {
+            method: 'PUT',
+            body: JSON.stringify({ ten_vt: ten_vt, don_gia: don_gia, so_luong: sl_moi })
+        })
+        .then(() => {
+            // Tạo chuỗi lịch sử chi tiết gửi lên máy tính Admin
             const id_log = "LS_" + Date.now();
+            const ngay_ht = new Date().toLocaleDateString('vi-VN');
+            const gio_ht = new Date().toLocaleTimeString('vi-VN');
+
             fetch(`${FIREBASE_URL}nhat_ky_nhap_xuat/${id_log}.json`, {
                 method: 'PUT',
                 body: JSON.stringify({
-                    ten_vt: ten, loai: loai, so_luong: sl, don_gia: don_gia,
+                    ma_vt: ma_vt, ten_vt: ten_vt, loai: loai, so_luong: sl, don_gia: don_gia,
                     ma_du_an: duAn, ngay: ngay_ht, gio: gio_ht
                 })
             }).then(() => {
-                Swal.fire('Thành công', `Đã ghi nhận ${loai} thành công!`, 'success');
-                document.getElementById('ten_vt').value = '';
+                Swal.fire('Thành công', `Đã ghi nhận ${loai} thành công vật tư ${ten_vt}!`, 'success');
                 document.getElementById('so_luong').value = '';
+                taiDuLieuTuCloud(); // Cập nhật lại số liệu tồn kho hiển thị tức thì trên điện thoại
             });
         });
     }
